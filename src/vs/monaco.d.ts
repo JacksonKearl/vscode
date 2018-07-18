@@ -2446,6 +2446,24 @@ declare namespace monaco.editor {
 	}
 
 	/**
+	 * Configuration options for auto closing both quotes and brackets
+	 */
+	export interface EditorAutoClosingOptions {
+		/**
+		 * Controls if we wrap selections with the auto-pairing character
+		 */
+		autoWrap: boolean;
+		/**
+		 * Controls if we automatically insert a matching close to this pair
+		 */
+		autoClose: boolean;
+		/**
+		 * controls the set of characters that we may insert a matching close before
+		 */
+		enabledBefore: string;
+	}
+
+	/**
 	 * Configuration options for editor minimap
 	 */
 	export interface IEditorMinimapOptions {
@@ -2802,10 +2820,15 @@ declare namespace monaco.editor {
 		 */
 		iconsInSuggestions?: boolean;
 		/**
-		 * Enable auto closing brackets.
-		 * Defaults to true.
+		 * Options for auto closing brackets.
+		 * Defaults to allowing auto-closing before whitespace and punctuation and allowing auto-wrapping always.
 		 */
-		autoClosingBrackets?: boolean;
+		autoClosingBrackets?: EditorAutoClosingOptions;
+		/**
+		 * Options for auto closing quotes.
+		 * Defaults to allowing auto-closing before whitespace and allowing auto-wrapping always.
+		 */
+		autoClosingQuotes?: EditorAutoClosingOptions;
 		/**
 		 * Enable auto indentation adjustment.
 		 * Defaults to false.
@@ -3234,7 +3257,8 @@ declare namespace monaco.editor {
 		readonly multiCursorMergeOverlapping: boolean;
 		readonly showUnused: boolean;
 		readonly wordSeparators: string;
-		readonly autoClosingBrackets: boolean;
+		readonly autoClosingBrackets: EditorAutoClosingOptions;
+		readonly autoClosingQuotes: EditorAutoClosingOptions;
 		readonly autoIndent: boolean;
 		readonly useTabStops: boolean;
 		readonly tabFocusMode: boolean;
@@ -3373,6 +3397,7 @@ declare namespace monaco.editor {
 		readonly multiCursorMergeOverlapping: boolean;
 		readonly wordSeparators: boolean;
 		readonly autoClosingBrackets: boolean;
+		readonly autoClosingQuotes: boolean;
 		readonly autoIndent: boolean;
 		readonly useTabStops: boolean;
 		readonly tabFocusMode: boolean;
