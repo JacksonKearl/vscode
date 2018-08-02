@@ -653,14 +653,11 @@ export class ExtensionsWorkbenchService implements IExtensionsWorkbenchService, 
 		}
 
 		return (TPromise.join(promises)).then(all => {
-			let numUpdates = 0;
-			all.forEach(pager => {
-				let results = pager.firstPage;
-				results.forEach(result => {
-					if (result.latestVersion !== allInstalledVersions[result.id]) { numUpdates++; }
-				});
-			});
-			if (numUpdates === 0 && userTriggered) {
+			let needUpdates = all.map(pager => pager.firstPage)
+				.reduce((p, c) => p.concat(c), [])
+				.some(result => result.latestVersion !== allInstalledVersions[result.id]);
+
+			if (!needUpdates && userTriggered) {
 				this.notificationService.info(nls.localize('allInstalledUpToDate', "All installed extensions already up to date."));
 			}
 		});
