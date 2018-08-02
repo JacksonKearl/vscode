@@ -637,19 +637,19 @@ export class ExtensionsWorkbenchService implements IExtensionsWorkbenchService, 
 			if (installed.type === LocalExtensionType.User) {
 				allInstalledVersions[installed.id] = installed.version;
 				if (installed.uuid) {
-					ids.push({ uuid: installed.uuid, installedVersion: installed.version });
+					ids.push(installed.uuid);
 				} else {
-					names.push({ id: installed.id, installedVersion: installed.version });
+					names.push(installed.id);
 				}
 			}
 		}
 
 		const promises: TPromise<IPager<IExtension>>[] = [];
 		if (ids.length) {
-			promises.push(this.queryGallery({ ids: ids.map(obj => obj.uuid), pageSize: ids.length }));
+			promises.push(this.queryGallery({ ids, pageSize: ids.length }));
 		}
 		if (names.length) {
-			promises.push(this.queryGallery({ names: names.map(obj => obj.id), pageSize: names.length }));
+			promises.push(this.queryGallery({ names, pageSize: names.length }));
 		}
 
 		return (TPromise.join(promises)).then(all => {
