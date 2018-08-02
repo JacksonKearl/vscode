@@ -412,12 +412,12 @@ export class ExtensionsWorkbenchService implements IExtensionsWorkbenchService, 
 		this.configurationService.onDidChangeConfiguration(e => {
 			if (e.affectsConfiguration(AutoUpdateConfigurationKey)) {
 				if (this.isAutoUpdateEnabled()) {
-					this.checkForUpdates();
+					this.checkForUpdates(false);
 				}
 			}
 			if (e.affectsConfiguration(AutoCheckUpdatesConfigurationKey)) {
 				if (this.isAutoCheckUpdatesEnabled()) {
-					this.checkForUpdates();
+					this.checkForUpdates(false);
 				}
 			}
 		}, this, this.disposables);
@@ -607,8 +607,10 @@ export class ExtensionsWorkbenchService implements IExtensionsWorkbenchService, 
 			});
 	}
 
-	checkForUpdates(): TPromise<void> {
-		return this.syncDelayer.trigger(() => this.syncWithGallery(), 0);
+	checkForUpdates(userTriggered: boolean): TPromise<void> {
+		return this.syncDelayer.trigger(() => {
+			return this.syncWithGallery(userTriggered);
+		}, 0);
 	}
 
 	private isAutoUpdateEnabled(): boolean {
@@ -621,34 +623,47 @@ export class ExtensionsWorkbenchService implements IExtensionsWorkbenchService, 
 
 	private eventuallySyncWithGallery(immediate = false): void {
 		const shouldSync = this.isAutoUpdateEnabled() || this.isAutoCheckUpdatesEnabled();
-		const loop = () => (shouldSync ? this.syncWithGallery() : TPromise.as(null)).then(() => this.eventuallySyncWithGallery());
+		const loop = () => (shouldSync ? this.syncWithGallery(false) : TPromise.as(null)).then(() => this.eventuallySyncWithGallery());
 		const delay = immediate ? 0 : ExtensionsWorkbenchService.SyncPeriod;
 
 		this.syncDelayer.trigger(loop, delay)
 			.done(null, err => null);
 	}
 
-	private syncWithGallery(): TPromise<void> {
+	private syncWithGallery(userTriggered: boolean): TPromise<void> {
 		const ids = [], names = [];
+		const allInstalledVersions = {};
 		for (const installed of this.installed) {
 			if (installed.type === LocalExtensionType.User) {
+				allInstalledVersions[installed.id] = installed.version;
 				if (installed.uuid) {
-					ids.push(installed.uuid);
+					ids.push({ uuid: installed.uuid, installedVersion: installed.version });
 				} else {
-					names.push(installed.id);
+					names.push({ id: installed.id, installedVersion: installed.version });
 				}
 			}
 		}
 
-		const promises = [];
+		const promises: TPromise<IPager<IExtension>>[] = [];
 		if (ids.length) {
-			promises.push(this.queryGallery({ ids, pageSize: ids.length }));
+			promises.push(this.queryGallery({ ids: ids.map(obj => obj.uuid), pageSize: ids.length }));
 		}
 		if (names.length) {
-			promises.push(this.queryGallery({ names, pageSize: names.length }));
+			promises.push(this.queryGallery({ names: names.map(obj => obj.id), pageSize: names.length }));
 		}
 
-		return TPromise.join(promises) as TPromise<any>;
+		return (TPromise.join(promises)).then(all => {
+			let numUpdates = 0;
+			all.forEach(pager => {
+				let results = pager.firstPage;
+				results.forEach(result => {
+					if (result.latestVersion !== allInstalledVersions[result.id]) { numUpdates++; }
+				});
+			});
+			if (numUpdates === 0 && userTriggered) {
+				this.notificationService.info(nls.localize('allInstalledUpToDate', "All installed extensions already up to date."));
+			}
+		});
 	}
 
 	private eventuallyAutoUpdateExtensions(): void {

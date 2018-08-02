@@ -1156,7 +1156,7 @@ export class DisableAction extends Action {
 export class CheckForUpdatesAction extends Action {
 
 	static readonly ID = 'workbench.extensions.action.checkForUpdates';
-	static LABEL = localize('checkForUpdates', "Check for Updates");
+	static LABEL = localize('checkForUpdates', "Check for Extension Updates");
 
 	constructor(
 		id = UpdateAllAction.ID,
@@ -1167,7 +1167,7 @@ export class CheckForUpdatesAction extends Action {
 	}
 
 	run(): TPromise<any> {
-		return this.extensionsWorkbenchService.checkForUpdates();
+		return this.extensionsWorkbenchService.checkForUpdates(true);
 	}
 }
 
