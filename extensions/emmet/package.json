@@ -30,9 +30,7 @@
             "title": "Emmet",
             "properties": {
                 "emmet.showExpandedAbbreviation": {
-                    "type": [
-                        "string"
-                    ],
+                    "type": "string",
                     "enum": [
                         "never",
                         "always",
