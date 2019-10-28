@@ -4,21 +4,7 @@
   "description": "%description%",
   "version": "1.0.0",
   "publisher": "vscode",
-  "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
-  "engines": {
-    "vscode": "0.10.x"
-  },
-  "icon": "icons/html.png",
-  "activationEvents": [
-    "onLanguage:html",
-    "onLanguage:handlebars",
-    "onLanguage:razor"
-  ],
-  "enableProposedApi": true,
-  "main": "./client/out/htmlMain",
-  "scripts": {
-    "compile": "gulp compile-extension:html-language-features-client compile-extension:html-language-features-server",
-    "watch": "gulp watch-extension:html-language-features-client watch-extension:html-language-features-server",
+  "aiKey": "AIF-d9b70cd4-ension:html-language-features-client watch-extension:html-language-features-server",
     "postinstall": "cd server && yarn install",
     "install-client-next": "yarn add vscode-languageclient@next"
   },
