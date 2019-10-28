@@ -11,9 +11,3 @@ exports.base = [{
 	dest: 'vs/base/worker/workerMain.js'
 }];
 //@ts-ignore review
-exports.workbench = require('./vs/workbench/buildfile').collectModules(['vs/workbench/workbench.main']);
-exports.code = require('./vs/code/buildfile').collectModules();
-
-exports.entrypoint = function (name) {
-	return [{ name: name, include: [], exclude: ['vs/css', 'vs/nls'] }];
-};
